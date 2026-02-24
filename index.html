@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <title>YouTube NoAds</title>
+  <meta name="description" content="YouTube senza pubblicità — PWA ad alte prestazioni">
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="YT NoAds">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230a0a0a'/%3E%3Cpolygon points='66,44 66,136 136,90' fill='%23ff4444'/%3E%3C/svg%3E">
+
+  <!-- Theme -->
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" id="logo">
+        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#ff4444"/>
+          <polygon points="12,8 12,24 24,16" fill="#fff"/>
+        </svg>
+        <div class="logo-text">YT <span>NoAds</span></div>
+      </a>
+      <div class="search-wrapper">
+        <input
+          type="search"
+          class="search-input"
+          id="searchInput"
+          placeholder="Cerca video..."
+          autocomplete="off"
+          enterkeyhint="search"
+        >
+        <button class="search-btn" id="searchBtn" aria-label="Cerca">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav Tabs -->
+  <nav class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="trending">🔥 Tendenze</button>
+    <button class="nav-tab" data-tab="search">🔍 Ricerca</button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Trending Section -->
+    <section id="trendingSection">
+      <h2 class="section-title"><span class="emoji">🔥</span> In Tendenza</h2>
+      <div class="video-grid" id="trendingGrid"></div>
+    </section>
+
+    <!-- Search Results Section -->
+    <section id="searchSection" style="display:none;">
+      <h2 class="section-title" id="searchTitle"><span class="emoji">🔍</span> Risultati</h2>
+      <div class="video-grid" id="searchGrid"></div>
+      <div class="load-more-wrapper" id="loadMoreWrapper" style="display:none;">
+        <button class="load-more-btn" id="loadMoreBtn">Carica altri</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Video Player Overlay -->
+  <div class="player-overlay" id="playerOverlay">
+    <div class="player-header">
+      <button class="player-back" id="playerBack">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12,19 5,12 12,5"/>
+        </svg>
+        Indietro
+      </button>
+      <div class="player-actions">
+        <button class="player-action-btn" id="pipBtn" aria-label="Picture in Picture" title="Picture-in-Picture">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <rect x="12" y="10" width="8" height="6" rx="1" fill="currentColor" opacity="0.3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="player-video-container">
+      <video
+        id="videoPlayer"
+        controls
+        playsinline
+        webkit-playsinline
+        preload="metadata"
+        crossorigin="anonymous"
+      ></video>
+    </div>
+    <div class="player-details" id="playerDetails">
+      <h1 class="player-title" id="playerTitle"></h1>
+      <div class="player-channel" id="playerChannel">
+        <div class="channel-avatar"><img id="channelAvatar" alt=""></div>
+        <div>
+          <div class="channel-name" id="channelName"></div>
+          <div class="channel-subs" id="channelSubs"></div>
+        </div>
+      </div>
+      <div class="player-stats" id="playerStats"></div>
+      <p class="player-description" id="playerDescription"></p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
