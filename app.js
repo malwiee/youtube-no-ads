@@ -50,6 +50,7 @@
     const chipsScroll = $('#chipsScroll');
     const pipBtn = $('#pipBtn');
     const bottomNav = $('#bottomNav');
+    const bgAudio = $('#bgAudio');
 
     // ─── State ─────────────────────────────────────
     let currentMode = 'home'; // home, search
@@ -57,6 +58,9 @@
     let currentQuery = '';
     let debounceTimer = null;
     let allTrending = [];
+    let currentAudioUrl = null;   // Audio-only stream URL for background
+    let currentVideoData = null;  // Current video metadata for Media Session
+    let isBackgrounded = false;   // Track if app is in background
 
     // ─── Service Worker ────────────────────────────
     if ('serviceWorker' in navigator) {
@@ -398,8 +402,26 @@
                 throw new Error('Nessun stream disponibile');
             }
 
+            // ── Extract audio-only stream for background playback ──
+            currentAudioUrl = null;
+            if (data.audioStreams && data.audioStreams.length) {
+                const bestAudio = data.audioStreams
+                    .filter(s => s.url && s.mimeType && s.mimeType.includes('audio'))
+                    .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+                if (bestAudio.length) {
+                    currentAudioUrl = bestAudio[0].url;
+                }
+            }
+
             videoPlayer.src = videoUrl;
+            videoPlayer.dataset.videoId = videoId;
             videoPlayer.play().catch(() => { });
+
+            // ── Setup background audio ──
+            if (currentAudioUrl && bgAudio) {
+                bgAudio.src = currentAudioUrl;
+                bgAudio.currentTime = 0;
+            }
 
             // ── Metadata ──
             playerTitle.textContent = data.title || 'Senza titolo';
@@ -431,6 +453,10 @@
             // Description
             playerDescText.textContent = data.description || 'Nessuna descrizione';
 
+            // ── Save metadata for Media Session ──
+            currentVideoData = data;
+            setupMediaSession(data);
+
             // ── Related Videos ──
             relatedList.innerHTML = '';
             if (data.relatedStreams && data.relatedStreams.length) {
@@ -456,6 +482,16 @@
         videoPlayer.pause();
         videoPlayer.removeAttribute('src');
         videoPlayer.load();
+
+        // Stop background audio
+        if (bgAudio) {
+            bgAudio.pause();
+            bgAudio.removeAttribute('src');
+            bgAudio.load();
+        }
+        currentAudioUrl = null;
+        currentVideoData = null;
+        clearMediaSession();
 
         // Restore bottom nav
         if (window.innerWidth < 1024) {
@@ -672,6 +708,116 @@
             }
         });
     }
+
+    // ─── Media Session API (lockscreen controls) ──
+    function setupMediaSession(data) {
+        if (!('mediaSession' in navigator)) return;
+
+        const artwork = [];
+        if (data.thumbnail) {
+            artwork.push({ src: data.thumbnail, sizes: '512x512', type: 'image/jpeg' });
+        }
+        if (data.uploaderAvatar) {
+            artwork.push({ src: data.uploaderAvatar, sizes: '96x96', type: 'image/jpeg' });
+        }
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: data.title || 'YouTube',
+            artist: data.uploader || '',
+            album: 'YouTube',
+            artwork: artwork
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => {
+            if (isBackgrounded && bgAudio) {
+                bgAudio.play();
+            } else {
+                videoPlayer.play();
+            }
+        });
+
+        navigator.mediaSession.setActionHandler('pause', () => {
+            if (isBackgrounded && bgAudio) {
+                bgAudio.pause();
+            } else {
+                videoPlayer.pause();
+            }
+        });
+
+        navigator.mediaSession.setActionHandler('seekbackward', () => {
+            const target = isBackgrounded ? bgAudio : videoPlayer;
+            if (target) target.currentTime = Math.max(0, target.currentTime - 10);
+        });
+
+        navigator.mediaSession.setActionHandler('seekforward', () => {
+            const target = isBackgrounded ? bgAudio : videoPlayer;
+            if (target) target.currentTime = Math.min(target.duration || Infinity, target.currentTime + 10);
+        });
+
+        try {
+            navigator.mediaSession.setActionHandler('seekto', (details) => {
+                const target = isBackgrounded ? bgAudio : videoPlayer;
+                if (target && details.seekTime !== undefined) {
+                    target.currentTime = details.seekTime;
+                }
+            });
+        } catch { }
+    }
+
+    function clearMediaSession() {
+        if (!('mediaSession' in navigator)) return;
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('seekbackward', null);
+        navigator.mediaSession.setActionHandler('seekforward', null);
+    }
+
+    // ─── Background Audio (iOS) ───────────────────
+    // When the app goes to background on iOS, <video> is paused by the OS.
+    // We switch to <audio> to keep playing. When returning, we sync back.
+    document.addEventListener('visibilitychange', () => {
+        if (!playerPage.classList.contains('active')) return;
+        if (!currentAudioUrl || !bgAudio) return;
+
+        if (document.hidden) {
+            // Going to background → switch to audio
+            isBackgrounded = true;
+            const currentTime = videoPlayer.currentTime;
+            const wasPlaying = !videoPlayer.paused;
+
+            bgAudio.currentTime = currentTime;
+            if (wasPlaying) {
+                bgAudio.play().catch(() => { });
+            }
+        } else {
+            // Coming back to foreground → sync back to video
+            isBackgrounded = false;
+            const currentTime = bgAudio.currentTime;
+            const wasPlaying = !bgAudio.paused;
+
+            bgAudio.pause();
+            videoPlayer.currentTime = currentTime;
+            if (wasPlaying) {
+                videoPlayer.play().catch(() => { });
+            }
+        }
+    });
+
+    // Keep Media Session position updated
+    videoPlayer.addEventListener('timeupdate', () => {
+        if ('mediaSession' in navigator && navigator.mediaSession.setPositionState && !isBackgrounded) {
+            try {
+                if (videoPlayer.duration && isFinite(videoPlayer.duration)) {
+                    navigator.mediaSession.setPositionState({
+                        duration: videoPlayer.duration,
+                        playbackRate: videoPlayer.playbackRate,
+                        position: videoPlayer.currentTime
+                    });
+                }
+            } catch { }
+        }
+    });
 
     // ─── Init ──────────────────────────────────────
     // Wait for authentication before loading content

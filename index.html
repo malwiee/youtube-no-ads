@@ -12,8 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="YouTube">
-  <link rel="apple-touch-icon"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23282828'/%3E%3Cpath d='M90 50l35 23c2 1.3 2 3.7 0 5l-35 23c-2 1.3-4.5 0-4.5-2.5V52.5c0-2.5 2.5-3.8 4.5-2.5z' fill='%23FF0000'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="icon.svg">
 
   <!-- Theme -->
   <meta name="theme-color" content="#0f0f0f">
@@ -298,6 +297,9 @@
       <span>Libreria</span>
     </button>
   </nav>
+
+  <!-- ====== HIDDEN AUDIO (iOS background playback) ====== -->
+  <audio id="bgAudio" preload="none" loop="false" webkit-playsinline playsinline></audio>
 
   <!-- ====== TOAST ====== -->
   <div class="yt-toast" id="toast"></div>
