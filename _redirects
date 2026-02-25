@@ -1,0 +1,4 @@
+# Proxy Piped API through Netlify to avoid CORS
+/api/*  https://pipedapi.kavin.rocks/:splat  200
+/api2/*  https://pipedapi-libre.kavin.rocks/:splat  200
+/api3/*  https://pipedapi.adminforge.de/:splat  200

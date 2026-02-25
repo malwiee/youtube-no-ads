@@ -7,15 +7,25 @@
     'use strict';
 
     // ─── Config ────────────────────────────────────
-    const PIPED_INSTANCES = [
-        'https://pipedapi.kavin.rocks',
-        'https://pipedapi-libre.kavin.rocks',
-        'https://pipedapi.adminforge.de',
-        'https://api.piped.yt',
-        'https://pipedapi.reallyaweso.me',
-        'https://pipedapi.leptons.xyz',
-        'https://piped-api.privacy.com.de'
-    ];
+    // When deployed on Netlify, use proxy paths (see _redirects) to avoid CORS.
+    // When running locally, use direct API URLs.
+    const isNetlify = location.hostname.includes('netlify.app') || (!location.hostname.includes('localhost') && location.protocol === 'https:');
+
+    const PIPED_INSTANCES = isNetlify
+        ? [
+            '/api',       // → pipedapi.kavin.rocks (via Netlify proxy)
+            '/api2',      // → pipedapi-libre.kavin.rocks
+            '/api3',      // → pipedapi.adminforge.de
+        ]
+        : [
+            'https://pipedapi.kavin.rocks',
+            'https://pipedapi-libre.kavin.rocks',
+            'https://pipedapi.adminforge.de',
+            'https://api.piped.yt',
+            'https://pipedapi.reallyaweso.me',
+            'https://pipedapi.leptons.xyz',
+            'https://piped-api.privacy.com.de'
+        ];
     let API = PIPED_INSTANCES[0];
     const REGION = 'IT';
     const SKELETON_COUNT = 12;
