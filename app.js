@@ -13,18 +13,10 @@
 
     const PIPED_INSTANCES = isNetlify
         ? [
-            '/api',       // → pipedapi.kavin.rocks (via Netlify proxy)
-            '/api2',      // → pipedapi-libre.kavin.rocks
-            '/api3',      // → pipedapi.adminforge.de
+            '/api',       // → api.piped.private.coffee (via Netlify proxy)
         ]
         : [
-            'https://pipedapi.kavin.rocks',
-            'https://pipedapi-libre.kavin.rocks',
-            'https://pipedapi.adminforge.de',
-            'https://api.piped.yt',
-            'https://pipedapi.reallyaweso.me',
-            'https://pipedapi.leptons.xyz',
-            'https://piped-api.privacy.com.de'
+            'https://api.piped.private.coffee',
         ];
     let API = PIPED_INSTANCES[0];
     const REGION = 'IT';
