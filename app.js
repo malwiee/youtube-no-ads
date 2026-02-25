@@ -672,6 +672,21 @@
     }
 
     // ─── Init ──────────────────────────────────────
-    loadTrending();
+    // Wait for authentication before loading content
+    function initApp() {
+        if (typeof YTAuth !== 'undefined' && YTAuth.isLoggedIn()) {
+            loadTrending();
+        } else {
+            // Retry until authenticated
+            const check = setInterval(() => {
+                if (typeof YTAuth !== 'undefined' && YTAuth.isLoggedIn()) {
+                    clearInterval(check);
+                    loadTrending();
+                }
+            }, 500);
+        }
+    }
+
+    initApp();
 
 })();

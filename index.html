@@ -33,6 +33,26 @@
 
 <body>
 
+  <!-- ====== LOGIN GATE ====== -->
+  <div class="yt-login-gate" id="loginGate">
+    <div class="yt-login-box">
+      <svg class="yt-login-logo" viewBox="0 0 28 20" width="56" height="40">
+        <path
+          d="M27.27 3.12a3.5 3.5 0 00-2.47-2.47C22.6 0 14 0 14 0S5.4 0 3.2.65A3.5 3.5 0 00.73 3.12 36.6 36.6 0 000 10c0 2.3.24 4.6.73 6.88a3.5 3.5 0 002.47 2.47C5.4 20 14 20 14 20s8.6 0 10.8-.65a3.5 3.5 0 002.47-2.47c.49-2.28.73-4.58.73-6.88s-.24-4.6-.73-6.88z"
+          fill="#FF0000" />
+        <path d="M11.2 14.28V5.72L18.4 10l-7.2 4.28z" fill="#fff" />
+      </svg>
+      <h2 class="yt-login-title">YouTube</h2>
+      <p class="yt-login-subtitle">Inserisci il codice da Google Authenticator</p>
+      <div class="yt-login-form">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="yt-login-input" id="loginPassword"
+          placeholder="000 000" autocomplete="one-time-code" autofocus>
+        <button class="yt-login-btn" id="loginBtn">Verifica</button>
+      </div>
+      <p class="yt-login-error" id="loginError"></p>
+    </div>
+  </div>
+
   <!-- ====== HEADER ====== -->
   <header class="yt-header" id="ytHeader">
     <div class="yt-header-start">
@@ -281,6 +301,9 @@
 
   <!-- ====== TOAST ====== -->
   <div class="yt-toast" id="toast"></div>
+
+  <!-- Auth (TOTP) -->
+  <script src="auth.js"></script>
 
   <!-- App Script -->
   <script src="app.js"></script>
